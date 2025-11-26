@@ -1,0 +1,10 @@
+{
+  "CrifSettings": {
+    "EndpointUrl": "https://uat.crifkax.uz/soap/endpoint",
+    "UserId": "your_actual_user_id",
+    "Password": "your_actual_password",
+    "TimeoutSeconds": 120,
+    "Environment": "UAT",
+    "EnableLogging": true
+  }
+}
