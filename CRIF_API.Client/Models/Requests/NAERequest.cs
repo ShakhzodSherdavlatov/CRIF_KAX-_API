@@ -15,6 +15,11 @@ public class NAERequest
     public string? ProviderSubjectNo { get; set; }
 
     /// <summary>
+    /// Subject reference date (MANDATORY) - date to which subject data refers
+    /// </summary>
+    public DateTime SubjectRefDate { get; set; } = DateTime.Now.Date;
+
+    /// <summary>
     /// Individual data (required if subject is individual)
     /// </summary>
     public Individual? Individual { get; set; }
@@ -90,6 +95,17 @@ public class ApplicationData
     /// Monthly payment amount
     /// </summary>
     public decimal? MonthlyPaymentAmount { get; set; }
+
+    /// <summary>
+    /// Number of installments (required for installment contracts)
+    /// </summary>
+    public int? InstallmentsNumber { get; set; }
+
+    /// <summary>
+    /// Payment periodicity code (required for installment contracts)
+    /// Default: "M" = Monthly (30 days)
+    /// </summary>
+    public string PaymentPeriodicity { get; set; } = "M";
 
     /// <summary>
     /// Due date (expected contract end date)

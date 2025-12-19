@@ -342,6 +342,10 @@ public class SoapXmlParser
                 ErrorDescription = errorElement.Attribute("Description")?.Value,
                 FieldName = errorElement.Attribute("FieldName")?.Value
             };
+            return;
         }
+
+        // If we got here, no errors were found
+        response.Success = true;
     }
 }

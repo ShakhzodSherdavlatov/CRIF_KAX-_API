@@ -11,6 +11,11 @@ public class NewApplicationRequest
     public string? ProviderSubjectNo { get; set; }
 
     /// <summary>
+    /// Date to which the subject data refers (MANDATORY)
+    /// </summary>
+    public DateTime SubjectRefDate { get; set; } = DateTime.Today;
+
+    /// <summary>
     /// Individual person data (required if Company is null)
     /// </summary>
     public IndividualData? Individual { get; set; }
@@ -40,6 +45,7 @@ public class IndividualData
     public string LastName { get; set; } = string.Empty;
     public string? MiddleName { get; set; }
     public DateTime DateOfBirth { get; set; }
+    public string? BirthPlace { get; set; }
     public string? Gender { get; set; }
 
     /// <summary>
@@ -48,9 +54,14 @@ public class IndividualData
     public string? PINFL { get; set; }
 
     /// <summary>
-    /// Passport or ID document
+    /// TIN (Tax Identification Number for individuals)
     /// </summary>
-    public DocumentData? Document { get; set; }
+    public string? TIN { get; set; }
+
+    /// <summary>
+    /// Passport or ID documents (can have multiple)
+    /// </summary>
+    public List<DocumentData>? Documents { get; set; }
 
     /// <summary>
     /// Address information
@@ -58,9 +69,14 @@ public class IndividualData
     public AddressData? Address { get; set; }
 
     /// <summary>
-    /// Phone number
+    /// Phone numbers (can have multiple)
     /// </summary>
-    public string? PhoneNumber { get; set; }
+    public List<string>? PhoneNumbers { get; set; }
+
+    /// <summary>
+    /// Employment information
+    /// </summary>
+    public EmploymentData? Employment { get; set; }
 }
 
 /// <summary>
@@ -127,14 +143,24 @@ public class ApplicationInfo
     public string ContractPhase { get; set; } = "Requested";
 
     /// <summary>
+    /// Date when the credit application was requested (MANDATORY)
+    /// </summary>
+    public DateTime ContractRequestDate { get; set; } = DateTime.Today;
+
+    /// <summary>
     /// Currency (must be UZS)
     /// </summary>
     public string Currency { get; set; } = "UZS";
 
     /// <summary>
-    /// Loan amount
+    /// Loan amount (for installment contracts)
     /// </summary>
-    public decimal FinancedAmount { get; set; }
+    public decimal? FinancedAmount { get; set; }
+
+    /// <summary>
+    /// Credit limit (for credit card contracts)
+    /// </summary>
+    public decimal? CreditLimit { get; set; }
 
     /// <summary>
     /// Monthly payment amount
@@ -142,12 +168,30 @@ public class ApplicationInfo
     public decimal? MonthlyPaymentAmount { get; set; }
 
     /// <summary>
-    /// Loan term in months
+    /// Number of installments (required for installment contracts)
     /// </summary>
-    public int? DurationInMonths { get; set; }
+    public int? InstallmentsNumber { get; set; }
+
+    /// <summary>
+    /// Payment periodicity code: "M" = Monthly, "Q" = Quarterly, "S" = Semi-Annual, "Y" = Yearly (required for installment contracts)
+    /// </summary>
+    public string PaymentPeriodicity { get; set; } = "M";
 
     /// <summary>
     /// Subject role: "Borrower", "CoApplicant", "Guarantor"
     /// </summary>
     public string SubjectRole { get; set; } = "Borrower";
+}
+
+/// <summary>
+/// Employment information
+/// </summary>
+public class EmploymentData
+{
+    public decimal? GrossIncome { get; set; }
+    public string Currency { get; set; } = "UZS";
+    public string? OccupationStatus { get; set; }
+    public DateTime? DateHiredFrom { get; set; }
+    public string? Occupation { get; set; }
+    public string? EmployerName { get; set; }
 }

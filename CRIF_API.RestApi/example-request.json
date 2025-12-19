@@ -1,5 +1,6 @@
 {
   "providerSubjectNo": "IND12345",
+  "subjectRefDate": "2024-12-19",
   "individual": {
     "firstName": "JOHN",
     "lastName": "DOE",
@@ -7,13 +8,15 @@
     "dateOfBirth": "1990-05-15",
     "gender": "M",
     "pinfl": "12345678901234",
-    "document": {
-      "documentType": "PASSPORT",
-      "documentNumber": "AB1234567",
-      "issueDate": "2020-01-15",
-      "expirationDate": "2030-01-15",
-      "issuingAuthority": "OVIR Tashkent"
-    },
+    "documents": [
+      {
+        "documentType": "1",
+        "documentNumber": "AB1234567",
+        "issueDate": "2020-01-15",
+        "expirationDate": "2030-01-15",
+        "issuingAuthority": "OVIR Tashkent"
+      }
+    ],
     "address": {
       "city": "TASHKENT",
       "district": "UCHTEPA",
@@ -23,15 +26,17 @@
       "apartment": "34",
       "country": "UZ"
     },
-    "phoneNumber": "+998901234567"
+    "phoneNumbers": ["+998901234567"]
   },
   "application": {
     "contractType": "01",
     "contractPhase": "Requested",
+    "contractRequestDate": "2024-12-19",
     "currency": "UZS",
     "financedAmount": 50000000,
     "monthlyPaymentAmount": 5000000,
-    "durationInMonths": 12,
+    "installmentsNumber": 12,
+    "paymentPeriodicity": "M",
     "subjectRole": "Borrower"
   },
   "providerContractNo": "LOAN-2024-001"

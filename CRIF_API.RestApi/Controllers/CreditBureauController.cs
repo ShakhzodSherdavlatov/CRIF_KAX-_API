@@ -114,13 +114,104 @@ public class CreditBureauController : ControllerBase
         return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
     }
 
+    /// <summary>
+    /// Test endpoint with pre-filled data from CRIF documentation example
+    /// </summary>
+    [HttpPost("test")]
+    [ProducesResponseType(typeof(NewApplicationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> TestApplication()
+    {
+        var request = new NewApplicationRequest
+        {
+            ProviderSubjectNo = "3333355555",
+            SubjectRefDate = new DateTime(2014, 1, 1),
+            Individual = new IndividualData
+            {
+                FirstName = "YUNUS",
+                LastName = "KARIMOVA",
+                MiddleName = "KARIMOVOVICH",
+                DateOfBirth = new DateTime(1980, 1, 1),
+                BirthPlace = "TASHKENT",
+                Gender = "M",
+                PINFL = "30212942400058",
+                TIN = "541082877",
+                Documents = new List<DocumentData>
+                {
+                    new DocumentData
+                    {
+                        DocumentType = "1",
+                        DocumentNumber = "1234567890",
+                        IssueDate = new DateTime(2000, 1, 1),
+                        ExpirationDate = new DateTime(2020, 12, 31),
+                        IssuingAuthority = "UZ"
+                    },
+                    new DocumentData
+                    {
+                        DocumentType = "2",
+                        DocumentNumber = "AS0000000",
+                        IssueDate = new DateTime(2001, 10, 10),
+                        ExpirationDate = new DateTime(2020, 2, 2),
+                        IssuingAuthority = "UZ"
+                    },
+                    new DocumentData
+                    {
+                        DocumentType = "3",
+                        DocumentNumber = "PERRES000",
+                        IssueDate = new DateTime(1999, 10, 10),
+                        ExpirationDate = new DateTime(2024, 2, 2),
+                        IssuingAuthority = "UZ"
+                    }
+                },
+                Address = new AddressData
+                {
+                    City = "TASHKENT",
+                    District = "226",
+                    Region = "26",
+                    Street = "29 NUKUS STREET",
+                    Building = "",
+                    Apartment = "",
+                    Country = "UZ"
+                },
+                PhoneNumbers = new List<string>
+                {
+                    "+39 0335-11111111",
+                    "0039051222222"
+                },
+                Employment = new Models.EmploymentData
+                {
+                    GrossIncome = 2000000,
+                    Currency = "UZS",
+                    OccupationStatus = "1",
+                    DateHiredFrom = new DateTime(2001, 9, 3),
+                    Occupation = "MANAGER",
+                    EmployerName = "CRIF SPA"
+                }
+            },
+            Application = new ApplicationInfo
+            {
+                ContractType = "53", // CreditCard
+                ContractPhase = "Requested",
+                ContractRequestDate = new DateTime(2013, 12, 11),
+                Currency = "UZS",
+                CreditLimit = 1000, // CreditCard uses CreditLimit, not FinancedAmount
+                SubjectRole = "Borrower"
+            },
+            ProviderContractNo = "TEST-" + DateTime.Now.Ticks
+        };
+
+        return await CreateApplication(request);
+    }
+
     #region Mapping Methods
 
     private NAERequest MapToNAERequest(NewApplicationRequest request)
     {
         var naeRequest = new NAERequest
         {
-            ProviderSubjectNo = request.ProviderSubjectNo
+            ProviderSubjectNo = request.ProviderSubjectNo,
+            SubjectRefDate = request.SubjectRefDate
         };
 
         // Map Individual data
@@ -132,10 +223,12 @@ public class CreditBureauController : ControllerBase
                 LastName = request.Individual.LastName,
                 Patronymic = request.Individual.MiddleName,
                 DateOfBirth = request.Individual.DateOfBirth,
+                BirthPlace = request.Individual.BirthPlace,
                 Gender = MapGender(request.Individual.Gender),
                 IdentificationCodes = new List<IdentificationCode>(),
                 Addresses = new List<Address>(),
-                Contacts = new List<Contact>()
+                Contacts = new List<Contact>(),
+                IdDocuments = new List<IdDocument>()
             };
 
             // Add PINFL if provided
@@ -143,25 +236,35 @@ public class CreditBureauController : ControllerBase
             {
                 naeRequest.Individual.IdentificationCodes.Add(new IdentificationCode
                 {
-                    IdentificationType = "PINFL",
+                    IdentificationType = "1",
                     IdentificationNumber = request.Individual.PINFL
                 });
             }
 
-            // Add document if provided
-            if (request.Individual.Document != null)
+            // Add TIN if provided
+            if (!string.IsNullOrWhiteSpace(request.Individual.TIN))
             {
-                naeRequest.Individual.IdDocuments = new List<IdDocument>
+                naeRequest.Individual.IdentificationCodes.Add(new IdentificationCode
                 {
-                    new IdDocument
+                    IdentificationType = "2",
+                    IdentificationNumber = request.Individual.TIN
+                });
+            }
+
+            // Add documents if provided
+            if (request.Individual.Documents != null && request.Individual.Documents.Any())
+            {
+                foreach (var doc in request.Individual.Documents)
+                {
+                    naeRequest.Individual.IdDocuments.Add(new IdDocument
                     {
-                        IdType = request.Individual.Document.DocumentType ?? "PASSPORT",
-                        IdNumber = request.Individual.Document.DocumentNumber ?? string.Empty,
-                        IssueDate = request.Individual.Document.IssueDate,
-                        ExpiryDate = request.Individual.Document.ExpirationDate,
-                        IssuingAuthority = request.Individual.Document.IssuingAuthority
-                    }
-                };
+                        IdType = doc.DocumentType ?? "1",
+                        IdNumber = doc.DocumentNumber ?? string.Empty,
+                        IssueDate = doc.IssueDate,
+                        ExpiryDate = doc.ExpirationDate,
+                        IssuingAuthority = doc.IssuingAuthority
+                    });
+                }
             }
 
             // Add address if provided
@@ -178,14 +281,36 @@ public class CreditBureauController : ControllerBase
                 });
             }
 
-            // Add phone if provided
-            if (!string.IsNullOrWhiteSpace(request.Individual.PhoneNumber))
+            // Add phones if provided (each phone needs a different ContactType)
+            if (request.Individual.PhoneNumbers != null && request.Individual.PhoneNumbers.Any())
             {
-                naeRequest.Individual.Contacts.Add(new Contact
+                int contactTypeIndex = 1;
+                foreach (var phone in request.Individual.PhoneNumbers)
                 {
-                    ContactType = "Phone",
-                    ContactValue = request.Individual.PhoneNumber
-                });
+                    if (!string.IsNullOrWhiteSpace(phone))
+                    {
+                        naeRequest.Individual.Contacts.Add(new Contact
+                        {
+                            ContactType = contactTypeIndex.ToString(),
+                            ContactValue = phone
+                        });
+                        contactTypeIndex++;
+                    }
+                }
+            }
+
+            // Add employment if provided
+            if (request.Individual.Employment != null)
+            {
+                naeRequest.Individual.Employment = new Client.Models.Common.EmploymentData
+                {
+                    GrossAnnualIncome = request.Individual.Employment.GrossIncome,
+                    Currency = request.Individual.Employment.Currency,
+                    OccupationStatus = request.Individual.Employment.OccupationStatus,
+                    DateHiredFrom = request.Individual.Employment.DateHiredFrom,
+                    Occupation = request.Individual.Employment.Occupation,
+                    CompanyTradeName = request.Individual.Employment.EmployerName
+                };
             }
         }
 
@@ -233,9 +358,13 @@ public class CreditBureauController : ControllerBase
         {
             ContractType = request.Application.ContractType,
             ContractPhase = MapContractPhase(request.Application.ContractPhase),
+            ContractRequestDate = request.Application.ContractRequestDate,
             Currency = request.Application.Currency,
             FinancedAmount = request.Application.FinancedAmount,
-            MonthlyPaymentAmount = request.Application.MonthlyPaymentAmount
+            CreditLimit = request.Application.CreditLimit,
+            MonthlyPaymentAmount = request.Application.MonthlyPaymentAmount,
+            InstallmentsNumber = request.Application.InstallmentsNumber,
+            PaymentPeriodicity = request.Application.PaymentPeriodicity
         };
 
         // Map Link data

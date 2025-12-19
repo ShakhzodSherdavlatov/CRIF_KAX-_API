@@ -4,6 +4,7 @@ using CRIF_API.Client.Exceptions;
 using CRIF_API.Client.Models.Requests;
 using CRIF_API.Client.Models.Responses;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace CRIF_API.Client.Services;
 
@@ -17,10 +18,12 @@ public class SoapClient : ISoapClient, IDisposable
     private readonly HttpClient _httpClient;
     private readonly SoapXmlBuilder _xmlBuilder;
     private readonly SoapXmlParser _xmlParser;
+    private readonly ILogger<SoapClient> _logger;
 
-    public SoapClient(IOptions<CrifSettings> settings)
+    public SoapClient(IOptions<CrifSettings> settings, ILogger<SoapClient> logger)
     {
         _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         _httpClient = new HttpClient
         {
@@ -45,11 +48,8 @@ public class SoapClient : ISoapClient, IDisposable
 
             if (_settings.EnableLogging)
             {
-                Console.WriteLine($"\n[CRIF SOAP Request] Operation: {operation}");
-                Console.WriteLine($"[CRIF SOAP Request] Endpoint: {_settings.EndpointUrl}");
-                Console.WriteLine($"[CRIF SOAP Request] XML:");
-                Console.WriteLine(soapRequest);
-                Console.WriteLine();
+                _logger.LogInformation("CRIF SOAP Request - Operation: {Operation}, Endpoint: {Endpoint}", operation, _settings.EndpointUrl);
+                _logger.LogDebug("CRIF SOAP Request XML:\n{SoapXml}", soapRequest);
             }
 
             // Create HTTP request
@@ -69,10 +69,8 @@ public class SoapClient : ISoapClient, IDisposable
 
             if (_settings.EnableLogging)
             {
-                Console.WriteLine($"[CRIF SOAP Response] Status: {httpResponse.StatusCode}");
-                Console.WriteLine($"[CRIF SOAP Response] XML:");
-                Console.WriteLine(soapResponse);
-                Console.WriteLine();
+                _logger.LogInformation("CRIF SOAP Response - Status: {StatusCode}", httpResponse.StatusCode);
+                _logger.LogDebug("CRIF SOAP Response XML:\n{SoapXml}", soapResponse);
             }
 
             // Check HTTP status

@@ -117,7 +117,11 @@ public class SoapXmlBuilder
         var elements = new List<XElement>();
 
         // Subject
-        var subjectAttrs = new List<XAttribute>();
+        var subjectAttrs = new List<XAttribute>
+        {
+            new XAttribute("SubjectRefDate", request.SubjectRefDate.ToString("yyyy-MM-dd"))
+        };
+
         if (!string.IsNullOrWhiteSpace(request.ProviderSubjectNo))
             subjectAttrs.Add(new XAttribute("ProviderSubjectNo", request.ProviderSubjectNo));
 
@@ -384,23 +388,35 @@ public class SoapXmlBuilder
         if (application.FinancedAmount.HasValue)
         {
             // For installment contracts
-            children.Add(new XElement(CbNs + "Installment",
-                new XAttribute("FinancedAmount", application.FinancedAmount.Value),
-                application.MonthlyPaymentAmount.HasValue
-                    ? new XAttribute("MonthlyPaymentAmount", application.MonthlyPaymentAmount.Value)
-                    : null,
-                application.DueDate.HasValue
-                    ? new XAttribute("DueDate", application.DueDate.Value.ToString("yyyy-MM-dd"))
-                    : null
-            ));
-        }
+            var installmentAttrs = new List<XAttribute>
+            {
+                new XAttribute("FinancedAmount", application.FinancedAmount.Value)
+            };
 
-        if (application.CreditLimit.HasValue)
+            if (application.MonthlyPaymentAmount.HasValue)
+                installmentAttrs.Add(new XAttribute("MonthlyPaymentAmount", application.MonthlyPaymentAmount.Value));
+
+            if (application.InstallmentsNumber.HasValue)
+                installmentAttrs.Add(new XAttribute("InstallmentsNumber", application.InstallmentsNumber.Value));
+
+            // PaymentPeriodicity is MANDATORY for installment contracts
+            installmentAttrs.Add(new XAttribute("PaymentPeriodicity", application.PaymentPeriodicity ?? "M"));
+
+            if (application.DueDate.HasValue)
+                installmentAttrs.Add(new XAttribute("DueDate", application.DueDate.Value.ToString("yyyy-MM-dd")));
+
+            children.Add(new XElement(CbNs + "Installment", installmentAttrs));
+        }
+        else if (application.CreditLimit.HasValue)
         {
             // For credit card/revolving credit
-            children.Add(new XElement(CbNs + "CreditCard",
-                new XAttribute("CreditLimit", application.CreditLimit.Value)
-            ));
+            var creditCardAttrs = new List<XAttribute>
+            {
+                new XAttribute("CreditLimit", application.CreditLimit.Value),
+                new XAttribute("PaymentPeriodicity", application.PaymentPeriodicity ?? "M")
+            };
+
+            children.Add(new XElement(CbNs + "CreditCard", creditCardAttrs));
         }
 
         return new XElement(CbNs + "Application", attrs, children);
