@@ -28,42 +28,63 @@ public class SoapXmlBuilder
     {
         var doc = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
-            new XElement("MGRequest",
-                BuildMessageElement(),
-                BuildProductElement("CB_NAE_Product", "CB_NAE_Product.2021-03-26.001",
-                    BuildNAEProductInput(request))
+            new XElement(SoapNs + "Envelope",
+                new XAttribute(XNamespace.Xmlns + "soapenv", SoapNs),
+                new XAttribute(XNamespace.Xmlns + "urn", MgNs),
+                new XAttribute(XNamespace.Xmlns + "cb", CbNs),
+                new XElement(SoapNs + "Body",
+                    new XElement(MgNs + "MGRequest",
+                        BuildMessageElement(),
+                        BuildProductElement("CB_NAE_Product", "",
+                            BuildNAEProductInput(request))
+                    )
+                )
             )
         );
 
-        return doc.ToString(SaveOptions.None);
+        return doc.ToString(SaveOptions.DisableFormatting);
     }
 
     public string BuildMERequest(MERequest request)
     {
         var doc = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
-            new XElement("MGRequest",
-                BuildMessageElement(),
-                BuildProductElement("CB_ME_Product", "CB_ME_Product.2021-03-26.001",
-                    BuildMEProductInput(request))
+            new XElement(SoapNs + "Envelope",
+                new XAttribute(XNamespace.Xmlns + "soapenv", SoapNs),
+                new XAttribute(XNamespace.Xmlns + "urn", MgNs),
+                new XAttribute(XNamespace.Xmlns + "cb", CbNs),
+                new XElement(SoapNs + "Body",
+                    new XElement(MgNs + "MGRequest",
+                        BuildMessageElement(),
+                        BuildProductElement("CB_ME_Product", "",
+                            BuildMEProductInput(request))
+                    )
+                )
             )
         );
 
-        return doc.ToString(SaveOptions.None);
+        return doc.ToString(SaveOptions.DisableFormatting);
     }
 
     public string BuildAUERequest(AUERequest request)
     {
         var doc = new XDocument(
             new XDeclaration("1.0", "utf-8", null),
-            new XElement("MGRequest",
-                BuildMessageElement(),
-                BuildProductElement("CB_AUE_Product", "CB_AUE_Product.2021-03-26.001",
-                    BuildAUEProductInput(request))
+            new XElement(SoapNs + "Envelope",
+                new XAttribute(XNamespace.Xmlns + "soapenv", SoapNs),
+                new XAttribute(XNamespace.Xmlns + "urn", MgNs),
+                new XAttribute(XNamespace.Xmlns + "cb", CbNs),
+                new XElement(SoapNs + "Body",
+                    new XElement(MgNs + "MGRequest",
+                        BuildMessageElement(),
+                        BuildProductElement("CB_AUE_Product", "",
+                            BuildAUEProductInput(request))
+                    )
+                )
             )
         );
 
-        return doc.ToString(SaveOptions.None);
+        return doc.ToString(SaveOptions.DisableFormatting);
     }
 
     private XElement BuildMessageElement()

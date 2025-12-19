@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRIF_API.Client", "CRIF_API
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRIF_API.Examples", "CRIF_API.Examples\CRIF_API.Examples.csproj", "{17B75609-DF3B-430C-A446-23E32ACE28AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CRIF_API.RestApi", "CRIF_API.RestApi\CRIF_API.RestApi.csproj", "{6782F896-D2D8-4852-8DD0-5228287C4BCE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{17B75609-DF3B-430C-A446-23E32ACE28AD}.Release|x64.Build.0 = Release|Any CPU
 		{17B75609-DF3B-430C-A446-23E32ACE28AD}.Release|x86.ActiveCfg = Release|Any CPU
 		{17B75609-DF3B-430C-A446-23E32ACE28AD}.Release|x86.Build.0 = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|x64.Build.0 = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Debug|x86.Build.0 = Debug|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|x64.ActiveCfg = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|x64.Build.0 = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|x86.ActiveCfg = Release|Any CPU
+		{6782F896-D2D8-4852-8DD0-5228287C4BCE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
